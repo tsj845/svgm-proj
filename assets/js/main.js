@@ -7,7 +7,7 @@ const data = {
         [".lime", "fill:#00ff00;"],
     ],
     "frames":[
-        [0, {type:"rect", props:{"x":2,"y":2,"width":996,"height":996,"fill":"transparent","stroke":"black","stroke-width":2}}, {type:"circle", props:{"cx":50,"cy":50,"r":50}, clname:"lime", "name":"c1"}],
+        [0, {type:"rect", props:{"x":2,"y":2,"width":996,"height":996,"fill":"transparent","stroke":"black","stroke-width":2}}, {type:"circ", props:{"cx":50,"cy":50,"r":50}, clname:"lime", "name":"c1"}],
         // [0, {type:"circle", props:{"cx":50,"cy":50,"r":50,"fill":"#00ff00"}, "name":"c1"}],
         [2, {to:1, paths:{"props,transform,translate":[[0, 0], [10, 10], 10]}}, {"name":"c1", props:{transform:{"rel":false,"translate":[null,null]}}}],
     ],
@@ -47,16 +47,31 @@ class SVGM {
     parsekeyframe (frame) {
         this.out.replaceChildren();
         frame = frame.slice(1);
+        const conv = {"circ":0, "rect":1, "plin":2, "poly":3, "oval":4, "grop":5, "embd":6};
         for (let i = 0; i < frame.length; i ++) {
             const def = frame[i];
             let shape = null;
-            switch (def.type) {
-                case "circle":
+            switch (def.type in conv ? conv[def.type] : undefined) {
+                case 0:
                     shape = document.createElementNS(this.uri, "circle");
                     break;
-                case "rect":
+                case 1:
                     shape = document.createElementNS(this.uri, "rect");
                     break;
+                case 2:
+                    shape = document.createElementNS(this.uri, "polyline");
+                    break;
+                case 3:
+                    shape = document.createElementNS(this.uri, "polygon");
+                    break;
+                case 4:
+                    shape = document.createElementNS(this.uri, "ellipse");
+                    break;
+                case 5:
+                    shape = document.createElementNS(this.uri, "g");
+                    break;
+                case 6:
+                    shape = document.createElementNS(this.uri, "a");
                 default:
                     throw "unknown shape";
             }
