@@ -7,7 +7,8 @@ const data = {
         [".lime", "fill:#00ff00;"],
     ],
     "frames":[
-        [0, {type:"rect", props:{"x":2,"y":2,"width":996,"height":996,"fill":"transparent","stroke":"black","stroke-width":2}}, {type:"circ", props:{"cx":50,"cy":50,"r":50}, clname:"lime", "name":"c1"}],
+        [0, {type:"rect", props:{"x":2,"y":2,"width":996,"height":996,"fill":"transparent","stroke":"black","stroke-width":2}}],
+        [3, {type:"circ", props:{"cx":50,"cy":50,"r":50}, clname:"lime", "name":"c1"}],
         // [0, {type:"circle", props:{"cx":50,"cy":50,"r":50,"fill":"#00ff00"}, "name":"c1"}],
         [2, {to:1, paths:{"props,transform,translate":[[0, 0], [10, 10], 10]}}, {"name":"c1", props:{transform:{"rel":false,"translate":[null,null]}}}],
     ],
@@ -46,6 +47,9 @@ class SVGM {
     }
     parsekeyframe (frame) {
         this.out.replaceChildren();
+        this.parseaddframe(frame);
+    }
+    parseaddframe (frame) {
         frame = frame.slice(1);
         const conv = {"circ":0, "rect":1, "plin":2, "poly":3, "oval":4, "grop":5, "embd":6};
         for (let i = 0; i < frame.length; i ++) {
@@ -160,6 +164,8 @@ class SVGM {
             case 1:
                 this.parseupframe(frame);
                 break;
+            case 3:
+                this.parseaddframe(frame);
             default:
                 break;
         }
