@@ -35,6 +35,26 @@ frames {
     }
     key frame {
         clears all shapes and repopulates
-        [0, {type:(str shape type), props:{(shape props)}, clname:(str css class name, optional), name:(str unique id, optional)}]
+        [0, {type:(str shape type), props:{(shape props)}, clname:(str css class name, optional), name:(str unique id, optional)}, ...(repeat)]
+    }
+    update frame {
+        updates a shape's properties
+        [1, {name:(str shape id), props:{(properties)}}]
+    }
+    expand frame {
+        generates frames using the given information
+        [2, {to:(int frame type id), paths:{(str prop path):[(array | int low), (array | int high), (int frame count)]}}, {(valid for target frame)}]
+    }
+    add frame {
+        adds a new shape without clearing existing shapes
+        [3, (valid key frame syntax)]
+    }
+    toggle visibility {
+        toggles the visiblity of the given shapes
+        [4, (str shape id), ...(repeat)]
+    }
+    wait {
+        noop frame, performs no action
+        [5, ...(anything can go here, all will be ignored)]
     }
 }
