@@ -11,9 +11,11 @@ const data = {
     ],
     "frames":[
         [0, {type:"rect", props:{"x":2,"y":2,"width":996,"height":996,"fill":"transparent","stroke":"black","stroke-width":2}}],
-        [3, {type:"circ", props:{"cx":50,"cy":50,"r":50}, clname:"lime", "name":"c1"}],
+        [3, {type:"circ", props:{"cx":50,"cy":50,"r":50}, clname:"lime", name:"c1"}],
         // [0, {type:"circle", props:{"cx":50,"cy":50,"r":50,"fill":"#00ff00"}, "name":"c1"}],
         [2, {to:1, paths:{"props,transform,translate":[[0, 0], [10, 10], 10]}}, {"name":"c1", props:{transform:{"rel":false,"translate":[null,null]}}}],
+        [2, {to:5, paths:{"dummy":[0, 0, 24]}}, {"dummy":null}],
+        [4, "c1"],
     ],
 };
 
@@ -43,6 +45,7 @@ class SVGM {
         this.sty = sty;
         this.data = data;
         this.shapes = {};
+        this.vis = {};
         this.frame = 0;
         this.kfd = 0;
         this.framedelay = 42;
@@ -57,6 +60,8 @@ class SVGM {
     }
     parsekeyframe (frame) {
         this.out.replaceChildren();
+        this.shapes = {};
+        this.vis = {};
         this.parseaddframe(frame);
     }
     parseaddframe (frame) {
@@ -91,6 +96,7 @@ class SVGM {
             }
             if ("name" in def) {
                 this.shapes[def.name] = shape;
+                this.vis[def.name] = false;
             }
             if ("clname" in def) {
                 shape.setAttribute("class", def.clname);
@@ -179,10 +185,23 @@ class SVGM {
         }
         this.updatesvgdim();
     }
+    parsevisframe (frame) {
+        frame = frame.slice(1);
+        for (let i = 0; i < frame.length; i ++) {
+            const name = frame[i];
+            if (!(name in this.shapes)) {
+                continue;
+            }
+            console.log(name);
+            const s = this.shapes[name];
+            this.vis[name] = !this.vis[name];
+            s.setAttribute("hidden", this.vis[name]);
+        }
+    }
     doframe () {
         const frame = this.data["frames"][this.frame];
         const id = frame[0];
-        const nolengthframes = [0, 3];
+        const nolengthframes = [0, 3, 4];
         switch (id) {
             case 0:
                 this.parsekeyframe(frame);
@@ -192,6 +211,12 @@ class SVGM {
                 break;
             case 3:
                 this.parseaddframe(frame);
+                break;
+            case 4:
+                this.parsevisframe(frame);
+                break;
+            case 5:
+                break;
             default:
                 break;
         }
@@ -202,7 +227,13 @@ class SVGM {
         }
         setTimeout(()=>{this.doframe()}, (nolengthframes.indexOf(id)<0?this.kfd:this.framedelay));
     }
+    gennumcomp (dat, iter) {
+        return (dat[1]-dat[0])/dat[2]*iter;
+    }
     gencomp (dat, iter) {
+        if (!Array.isArray(dat[0])) {
+            return this.gennumcomp(dat, iter);
+        }
         let fin = [];
         for (let i = 0; i < dat.length-1; i ++) {
             fin.push((dat[1][i]-dat[0][i])/dat[2]*iter);

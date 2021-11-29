@@ -1,0 +1,40 @@
+structure {
+    data = {
+        "meta":{
+            "kfd":(int milisecond delay for frames) 42, // 24 frames per second
+            "mfd":(int milisecond delay for zero length frames) 0,
+            "width":(int svg elem width) 1000,
+            "height":(int svg elem height) 1000,
+        },
+        "css":[
+            // css styles
+        ],
+        "frames":[
+            // video frames
+        ]
+    }
+}
+
+css {
+    format {
+        [(str css selector), (str css rule)]
+    }
+}
+
+frames {
+    format {
+        [(int frame type id), ...(other)]
+    }
+    frame type ids {
+        0 : key frame,
+        1 : update frame,
+        2 : expand frame,
+        3 : add frame,
+        4 : toggle visibility,
+        5 : wait
+    }
+    key frame {
+        clears all shapes and repopulates
+        [0, {type:(str shape type), props:{(shape props)}, clname:(str css class name, optional), name:(str unique id, optional)}]
+    }
+}
