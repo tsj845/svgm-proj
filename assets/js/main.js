@@ -3,6 +3,9 @@ const sty = document.createElement("style");
 document.head.appendChild(sty);
 
 const data = {
+    "meta":{
+        // add meta props here
+    },
     "css":[
         [".lime", "fill:#00ff00;"],
     ],
@@ -43,7 +46,14 @@ class SVGM {
         this.frame = 0;
         this.kfd = 0;
         this.framedelay = 42;
+        this.width = 1000;
+        this.height = 1000;
         this.play();
+    }
+    updatesvgdim () {
+        this.out.setAttribute("width", this.width);
+        this.out.setAttribute("height", this.height);
+        this.out.setAttribute("viewBox", "0 0 " + this.width + " " + this.height);
     }
     parsekeyframe (frame) {
         this.out.replaceChildren();
@@ -126,6 +136,7 @@ class SVGM {
         }
     }
     parseupframe (frame) {
+        console.log(frame);
         frame = frame.slice(1);
         for (let i = 0; i < frame.length; i ++) {
             const inst = frame[i];
@@ -144,7 +155,7 @@ class SVGM {
     }
     parsehead () {
         const sty = this.sty.sheet;
-        console.log(sty);
+        // console.log(sty);
         for (let i = sty.rules.length-1; i >= 0; i --) {
             sty.deleteRule(i);
         }
@@ -154,9 +165,24 @@ class SVGM {
             sty.addRule(style[0], style[1]);
         }
     }
+    parsemeta () {
+        const search = {"kfd":42, "mfd":0, "width":1000, "height":1000};
+        const keyconv = {"mfd":"framedelay"};
+        for (const key in search) {
+            let value = search[key];
+            if (key in this.data.meta) {
+                value = this.data.meta[key];
+            }
+            const fkey = key in keyconv ? keyconv[key] : key;
+            this[fkey] = value;
+            console.log(this[fkey], fkey);
+        }
+        this.updatesvgdim();
+    }
     doframe () {
         const frame = this.data["frames"][this.frame];
         const id = frame[0];
+        const nolengthframes = [0, 3];
         switch (id) {
             case 0:
                 this.parsekeyframe(frame);
@@ -174,7 +200,7 @@ class SVGM {
             this.frame = 0;
             return;
         }
-        setTimeout(()=>{this.doframe()}, (id===0?this.kfd:this.framedelay));
+        setTimeout(()=>{this.doframe()}, (nolengthframes.indexOf(id)<0?this.kfd:this.framedelay));
     }
     gencomp (dat, iter) {
         let fin = [];
@@ -230,7 +256,7 @@ class SVGM {
         for (const key in data.paths) {
             for (let i = 0; i < data.paths[key][2]+1; i ++) {
                 let base = this.copybase(f[2]);
-                console.log(base.props.transform.translate);
+                // console.log(base.props.transform.translate);
                 let comp = this.gencomp(data.paths[key], i);
                 base = this._manbase(base, key, comp);
                 if (Object.is(base, f[2])) {
@@ -239,7 +265,7 @@ class SVGM {
                 fin.push([id, base]);
             }
         }
-        console.log(fin);
+        // console.log(fin);
         return fin;
     }
     expandFrames () {
@@ -258,6 +284,7 @@ class SVGM {
     play () {
         this.out.replaceChildren();
         this.parsehead();
+        this.parsemeta();
         this.expandFrames();
         this.doframe();
     }
