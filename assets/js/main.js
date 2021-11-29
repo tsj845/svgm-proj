@@ -7,8 +7,7 @@ const data = {
         [".lime", "fill:#00ff00;"],
     ],
     "frames":[
-        [0, {type:"rect", props:{"x":2,"y":2,"width":996,"height":996,"fill":"transparent","stroke":"black","stroke-width":2}}],
-        [0, {type:"circle", props:{"cx":50,"cy":50,"r":50}, clname:"lime", "name":"c1"}],
+        [0, {type:"rect", props:{"x":2,"y":2,"width":996,"height":996,"fill":"transparent","stroke":"black","stroke-width":2}}, {type:"circle", props:{"cx":50,"cy":50,"r":50}, clname:"lime", "name":"c1"}],
         // [0, {type:"circle", props:{"cx":50,"cy":50,"r":50,"fill":"#00ff00"}, "name":"c1"}],
         [2, {to:1, paths:{"props,transform,translate":[[0, 0], [10, 10], 10]}}, {"name":"c1", props:{transform:{"rel":false,"translate":[null,null]}}}],
     ],
@@ -46,6 +45,7 @@ class SVGM {
         this.play();
     }
     parsekeyframe (frame) {
+        this.out.replaceChildren();
         frame = frame.slice(1);
         for (let i = 0; i < frame.length; i ++) {
             const def = frame[i];
