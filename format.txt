@@ -31,7 +31,9 @@ frames {
         2 : expand frame,
         3 : add frame,
         4 : toggle visibility,
-        5 : wait
+        5 : wait,
+        6 : parent,
+        7 : unparent
     }
     key frame {
         clears all shapes and repopulates
@@ -56,5 +58,13 @@ frames {
     wait {
         noop frame, performs no action
         [5, ...(anything can go here, all will be ignored)]
+    }
+    parent {
+        parents a shape
+        [6, [(str parent shape id), (str child shape id)]]
+    }
+    unparent {
+        unparents a shape
+        [7, [(str parent shape id), (str child shape id)]]
     }
 }

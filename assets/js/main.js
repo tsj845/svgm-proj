@@ -5,16 +5,22 @@ document.head.appendChild(sty);
 const data = {
     "meta":{
         // add meta props here
+        "width":200,
+        "height":200,
     },
     "css":[
         [".lime", "fill:#00ff00;"],
+        [".blue", "fill:#0000ff;"],
     ],
     "frames":[
-        [0, {type:"rect", props:{"x":2,"y":2,"width":996,"height":996,"fill":"transparent","stroke":"black","stroke-width":2}}],
-        [3, {type:"circ", props:{"cx":50,"cy":50,"r":50}, clname:"lime", name:"c1"}],
+        [0, {type:"rect", props:{"x":2,"y":2,"width":196,"height":196,"fill":"transparent","stroke":"black","stroke-width":2}}],
+        [3, {type:"circ", props:{"cx":50,"cy":50,"r":50}, clname:"lime", name:"c1"}, {type:"grop", props:{}, name:"g1"}, {type:"oval", props:{"cx":50,"cy":50,"rx":25,"ry":50}, clname:"blue", name:"o1"}],
+        [6, ["g1", "c1"], ["g1", "o1"]],
         // [0, {type:"circle", props:{"cx":50,"cy":50,"r":50,"fill":"#00ff00"}, "name":"c1"}],
-        [2, {to:1, paths:{"props,transform,translate":[[0, 0], [10, 10], 10]}}, {"name":"c1", props:{transform:{"rel":false,"translate":[null,null]}}}],
+        [2, {to:1, paths:{"props,transform,translate":[[0, 0], [10, 10], 10]}}, {"name":"g1", props:{transform:{"rel":false,"translate":[null,null]}}}],
         [2, {to:5, paths:{"dummy":[0, 0, 24]}}, {"dummy":null}],
+        [4, "c1"],
+        [2, {to:5, paths:{"dummy":[0, 0, 12]}}, {"dummy":null}],
         [4, "c1"],
     ],
 };
@@ -142,7 +148,7 @@ class SVGM {
         }
     }
     parseupframe (frame) {
-        console.log(frame);
+        // console.log(frame);
         frame = frame.slice(1);
         for (let i = 0; i < frame.length; i ++) {
             const inst = frame[i];
@@ -166,6 +172,7 @@ class SVGM {
             sty.deleteRule(i);
         }
         let head = this.data["css"];
+        head.push(["*[hidden='true']", "fill:transparent !important;"]);
         for (let i = 0; i < head.length; i ++) {
             const style = head[i];
             sty.addRule(style[0], style[1]);
@@ -181,7 +188,7 @@ class SVGM {
             }
             const fkey = key in keyconv ? keyconv[key] : key;
             this[fkey] = value;
-            console.log(this[fkey], fkey);
+            // console.log(this[fkey], fkey);
         }
         this.updatesvgdim();
     }
@@ -192,10 +199,21 @@ class SVGM {
             if (!(name in this.shapes)) {
                 continue;
             }
-            console.log(name);
             const s = this.shapes[name];
             this.vis[name] = !this.vis[name];
             s.setAttribute("hidden", this.vis[name]);
+        }
+    }
+    parent (frame) {
+        frame = frame.slice(1);
+        for (let i = 0; i < frame.length; i ++) {
+            this.shapes[frame[i][0]].appendChild(this.shapes[frame[i][1]]);
+        }
+    }
+    unparent (frame) {
+        frame = frame.slice(1);
+        for (let i = 0; i < frame.length; i ++) {
+            this.shapes[frame[i][0]].removeChild(this.shapes[frame[i][1]]);
         }
     }
     doframe () {
@@ -216,6 +234,12 @@ class SVGM {
                 this.parsevisframe(frame);
                 break;
             case 5:
+                break;
+            case 6:
+                this.parent(frame);
+                break;
+            case 7:
+                this.unparent(frame);
                 break;
             default:
                 break;
